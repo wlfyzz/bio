@@ -21,6 +21,7 @@
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.447.0",
     "next": "14.2.14",
+    "pnotify": "^5.2.0",
     "react": "^18",
     "react-dom": "^18",
     "remark": "^15.0.1",

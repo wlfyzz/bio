@@ -13,12 +13,10 @@ export default function Error({
   }, [error])
 
   return (
-    
-    
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-        
       <h2 className="text-2xl mb-4">Something went wrong!</h2>
-      <p className="mb-4">We&apos;re sorry, but an internal server error occured.</p>
+      <p className="mb-4">We're sorry, but an internal server error occurred.</p>
+
       <button
         onClick={
           () => reset()
