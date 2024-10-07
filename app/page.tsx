@@ -1,5 +1,6 @@
 'use client'
-
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Terminal } from "lucide-react"
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Separator } from "@/components/ui/separator"
