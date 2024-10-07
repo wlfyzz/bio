@@ -1,7 +1,7 @@
 'use client'
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Terminal } from "lucide-react"
 import { useState, useEffect } from 'react'
+import {getFlags} from '@/utils/badges'
 import Image from 'next/image'
 import { Separator } from "@/components/ui/separator"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -107,6 +107,7 @@ function LanyardStatus({ userId }: { userId: string }) {
       </div>
     )
   }
+  console.log(getFlags(status.data.discord_user.public_flags))
 
   const getStatusColor = (status: string) => {
     switch (status) {
