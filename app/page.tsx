@@ -4,16 +4,16 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Separator } from "@/components/ui/separator"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGamepad, faCode, faHome, faMessage } from '@fortawesome/free-solid-svg-icons'
+import { faGamepad, faCode, faHome, faMessage, faBlog, faBook, faProjectDiagram } from '@fortawesome/free-solid-svg-icons'
 import { faTwitter, faGithub, faSpotify, faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
+import Sidebar from '@/components/sidebar'
 
 // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 config.autoAddCss = false
 
 const LANYARD_API_URL = 'https://api.lanyard.rest/v1/users/'
-
 interface Activity {
   type: number;
   state: string;
@@ -85,6 +85,7 @@ function LanyardStatus({ userId }: { userId: string }) {
         setError(null)
       } catch (err) {
         setError('Error fetching data. Please try again later.')
+        console.log(err)
       }
     }
 
@@ -94,13 +95,16 @@ function LanyardStatus({ userId }: { userId: string }) {
 
     return () => clearInterval(intervalId) // Cleanup on unmount
   }, [userId])
-
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>
+    throw new Error("An error occured fetching information")
   }
 
   if (!status) {
-    return <div className="text-center text-white">Loading...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
   }
 
   const getStatusColor = (status: string) => {
@@ -198,7 +202,7 @@ function LanyardStatus({ userId }: { userId: string }) {
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-400">No current activities</p>
+            <p className="text-center text-gray-400">Not doing anything currently</p>
           )}
         </div>
       </div>
@@ -209,30 +213,7 @@ function LanyardStatus({ userId }: { userId: string }) {
 export default function Home() {
   return (
     <div className="flex h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
-      <div className="w-16 bg-gray-800 flex flex-col items-center py-4">
-        <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mb-4 hover:bg-gray-600 transition-colors">
-          <FontAwesomeIcon icon={faHome} className="w-6 h-6" />
-        </div>
-        <Separator className="bg-gray-700 w-8 my-4" />
-        <div className="flex-grow"></div>
-        <div className="space-y-4 mb-4">
-          <a href="https://x.com/wlfyzz" className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors text-gray-400 hover:text-white">
-            <FontAwesomeIcon icon={faTwitter} className="w-6 h-6" />
-          </a>
-          <a href="https://github.com/wlfyzz" className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors text-gray-400 hover:text-white">
-            <FontAwesomeIcon icon={faGithub} className="w-6 h-6" />
-          </a>
-          <a href="https://potatonodes.com/discord" className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors text-gray-400 hover:text-white">
-            <FontAwesomeIcon icon={faDiscord} className="w-6 h-6" />
-          </a>
-          <a href="https://open.spotify.com/user/317z66iim4mtbr6brs22y3fkuitm?si=fae99502182848cc" className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors text-gray-400 hover:text-white">
-            <FontAwesomeIcon icon={faSpotify} className="w-6 h-6" />
-          </a>
-        </div>
-      </div>
-
-      {/* Main content */}
+            <Sidebar/>
       <div className="flex-1 flex items-center justify-center overflow-y-auto p-6">
         <LanyardStatus userId="1137093225576935485" />
       </div>

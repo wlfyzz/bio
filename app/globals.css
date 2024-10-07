@@ -1,7 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+nextjs-portal {
+  display: none;
+}
 @layer base {
   :root {
     --border: 240 3.7% 15.9%;
