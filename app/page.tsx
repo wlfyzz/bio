@@ -10,6 +10,7 @@ import { faTwitter, faGithub, faSpotify, faDiscord } from '@fortawesome/free-bra
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import Sidebar from '@/components/sidebar'
+import { getImageForName } from "@/utils/badgeImage"
 
 // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 config.autoAddCss = false
@@ -69,35 +70,35 @@ interface LanyardResponse {
     };
   };
 }
-
 function LanyardStatus({ userId }: { userId: string }) {
-  const [status, setStatus] = useState<LanyardResponse | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [status, setStatus] = useState<LanyardResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${LANYARD_API_URL}${userId}`)
+        const response = await fetch(`${LANYARD_API_URL}${userId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch data')
+          throw new Error('Failed to fetch data');
         }
-        const data: LanyardResponse = await response.json()
-        setStatus(data)
-        setError(null)
+        const data: LanyardResponse = await response.json();
+        setStatus(data);
+        setError(null);
       } catch (err) {
-        setError('Error fetching data. Please try again later.')
-        console.log(err)
+        setError('Error fetching data. Please try again later.');
+        console.log(err);
       }
-    }
+    };
 
-    fetchData() // Initial fetch
+    fetchData(); // Initial fetch
 
-    const intervalId = setInterval(fetchData, 250) // Fetch every 250ms
+    const intervalId = setInterval(fetchData, 250); // Fetch every 250ms
 
-    return () => clearInterval(intervalId) // Cleanup on unmount
-  }, [userId])
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [userId]);
+
   if (error) {
-    throw new Error("An error occured fetching information")
+    throw new Error("An error occurred fetching information");
   }
 
   if (!status) {
@@ -105,38 +106,34 @@ function LanyardStatus({ userId }: { userId: string }) {
       <div className="flex items-center justify-center min-h-screen bg-gray-900">
         <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
-    )
+    );
   }
-  console.log(getFlags(status.data.discord_user.public_flags))
+
+  // Get user badges from public flags
+  const badges = getFlags(status.data.discord_user.public_flags);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online': return 'bg-green-500'
-      case 'idle': return 'bg-yellow-500'
-      case 'dnd': return 'bg-red-500'
-      default: return 'bg-gray-500'
+      case 'online': return 'bg-green-500';
+      case 'idle': return 'bg-yellow-500';
+      case 'dnd': return 'bg-red-500';
+      default: return 'bg-gray-500';
     }
-  }
-
-  const getActivityIcon = (type: number) => {
-    switch (type) {
-      case 0: return <FontAwesomeIcon icon={faGamepad} className="w-4 h-4 mr-2" />
-      case 2: return <FontAwesomeIcon icon={faSpotify} className="w-4 h-4 mr-2" />
-      case 4: return <FontAwesomeIcon icon={faMessage} className="w-4 h-4 mr-2" />
-      default: return <FontAwesomeIcon icon={faCode} className="w-4 h-4 mr-2" />
-    }
-  }
-
+  };
   const calculateProgress = (start: number, end: number) => {
     const now = Date.now()
     const total = end - start
     const current = now - start
     return Math.min(100, (current / total) * 100)
   }
-
-  const openSpotify = (trackId: string) => {
-    window.open(`https://open.spotify.com/track/${trackId}`, '_blank')
-  }
+  const getActivityIcon = (type: number) => {
+    switch (type) {
+      case 0: return <FontAwesomeIcon icon={faGamepad} className="w-4 h-4 mr-2" />;
+      case 2: return <FontAwesomeIcon icon={faSpotify} className="w-4 h-4 mr-2" />;
+      case 4: return <FontAwesomeIcon icon={faMessage} className="w-4 h-4 mr-2" />;
+      default: return <FontAwesomeIcon icon={faCode} className="w-4 h-4 mr-2" />;
+    }
+  };
 
   return (
     <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl">
@@ -154,7 +151,32 @@ function LanyardStatus({ userId }: { userId: string }) {
             <div className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-gray-800 ${getStatusColor(status.data.discord_status)}`}></div>
           </div>
           <div className="pb-4">
-            <h2 className="text-2xl font-bold">{status.data.discord_user.username}</h2>  
+          <div className="flex items-center justify-between">
+  <h2 className="text-2xl font-bold">{status.data.discord_user.username}</h2>
+  <div className="flex flex-wrap items-start ml-4">
+    {badges.length > 0 ? (
+      badges.map((badge, index) => (
+        <span key={index} className="relative text-white rounded-full px-3 py-1 text-xs mr-2 group flex items-center">
+          <Image 
+            src={getImageForName(badge)} 
+            width="16" 
+            height="16" 
+            alt={badge.replace(/_/g, ' ')} 
+          />
+          <span className="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+            {badge.replace(/_/g, ' ')}
+          </span>
+        </span>
+      ))
+    ) : (
+      <p className="text-gray-400"></p>
+    )}
+  </div>
+</div>
+
+
+
+
           </div>
         </div>
       </div>
@@ -168,7 +190,7 @@ function LanyardStatus({ userId }: { userId: string }) {
                   {getActivityIcon(activity.type)}
                   <p className="font-medium">{activity.name}</p>
                 </div>
-                {activity.type === 2 && activity.name === 'Spotify' && status.data.spotify && (
+                {activity.type === 2 && status.data.spotify && (
                   <div className="mt-2 flex items-center">
                     <Image
                       src={status.data.spotify.album_art_url}
@@ -176,7 +198,11 @@ function LanyardStatus({ userId }: { userId: string }) {
                       width={64}
                       height={64}
                       className="rounded-md cursor-pointer mr-4"
-                      onClick={() => openSpotify(status.data.spotify!.track_id)}
+                      onClick={() => {
+                        if (status.data.spotify && status.data.spotify.track_id) {
+                          window.open(`https://open.spotify.com/track/${status.data.spotify.track_id}`, '_blank');
+                        }
+                      }}
                     />
                     <div className="flex-grow">
                       <p className="text-sm text-gray-400">
@@ -209,7 +235,7 @@ function LanyardStatus({ userId }: { userId: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function Home() {

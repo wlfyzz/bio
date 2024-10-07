@@ -28,7 +28,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, href, ariaLabel }) => {
 export default function Sidebar() {
   const sidebarItems = [
     { icon: faHome, href: "/", ariaLabel: "Home" },
-    { icon: faHome, href: "/projects", ariaLabel: "Projects" },
+    { icon: faGithub, href: "/projects", ariaLabel: "Projects" },
     { icon: faTwitter, href: "https://x.com/wlfyzz", ariaLabel: "Twitter" },
     { icon: faGithub, href: "https://github.com/wlfyzz", ariaLabel: "GitHub" },
     { icon: faDiscord, href: "https://potatonodes.com/discord", ariaLabel: "Discord" },
