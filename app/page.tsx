@@ -11,11 +11,13 @@ import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import Sidebar from '@/components/sidebar'
 import { getImageForName } from "@/utils/badgeImage"
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 config.autoAddCss = false
 
 const LANYARD_API_URL = 'https://api.lanyard.rest/v1/users/'
+
 interface Activity {
   type: number;
   state: string;
@@ -70,6 +72,7 @@ interface LanyardResponse {
     };
   };
 }
+
 function LanyardStatus({ userId }: { userId: string }) {
   const [status, setStatus] = useState<LanyardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -120,12 +123,14 @@ function LanyardStatus({ userId }: { userId: string }) {
       default: return 'bg-gray-500';
     }
   };
+
   const calculateProgress = (start: number, end: number) => {
     const now = Date.now()
     const total = end - start
     const current = now - start
     return Math.min(100, (current / total) * 100)
   }
+
   const getActivityIcon = (type: number) => {
     switch (type) {
       case 0: return <FontAwesomeIcon icon={faGamepad} className="w-4 h-4 mr-2" />;
@@ -136,10 +141,20 @@ function LanyardStatus({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl"
+    >
       <div className="relative pb-0">
         <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-purple-600 to-transparent rounded-t-lg"></div>
-        <div className="relative z-10 flex items-end space-x-4 p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="relative z-10 flex items-end space-x-4 p-4"
+        >
           <div className="relative">
             <Image
               src={`https://cdn.discordapp.com/avatars/${userId}/${status.data.discord_user.avatar}.png`}
@@ -151,97 +166,131 @@ function LanyardStatus({ userId }: { userId: string }) {
             <div className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-gray-800 ${getStatusColor(status.data.discord_status)}`}></div>
           </div>
           <div className="pb-4">
-          <div className="flex items-center justify-between">
-  <h2 className="text-2xl font-bold">{status.data.discord_user.username}</h2>
-  <div className="flex flex-wrap items-start ml-4">
-    {badges.length > 0 ? (
-      badges.map((badge, index) => (
-        <span key={index} className="relative text-white rounded-full px-3 py-1 text-xs mr-2 group flex items-center">
-          <Image 
-            src={getImageForName(badge)} 
-            width="16" 
-            height="16" 
-            alt={badge.replace(/_/g, ' ')} 
-          />
-          <span className="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-            {badge.replace(/_/g, ' ')}
-          </span>
-        </span>
-      ))
-    ) : (
-      <p className="text-gray-400"></p>
-    )}
-  </div>
-</div>
-
-
-
-
+            <div className="flex items-center justify-between">
+              <motion.h2 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="text-2xl font-bold"
+              >
+                {status.data.discord_user.username}
+              </motion.h2>
+              <div className="flex flex-wrap items-start ml-4">
+                <AnimatePresence>
+                  {badges.length > 0 ? (
+                    badges.map((badge, index) => (
+                      <motion.span 
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4 + index * 0.1, duration: 0.3 }}
+                        className="relative text-white rounded-full px-3 py-1 text-xs mr-2 group flex items-center"
+                      >
+                        <Image 
+                          src={getImageForName(badge)} 
+                          width="16" 
+                          height="16" 
+                          alt={badge.replace(/_/g, ' ')} 
+                        />
+                        <span className="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                          {badge.replace(/_/g, ' ')}
+                        </span>
+                      </motion.span>
+                    ))
+                  ) : (
+                    <p className="text-gray-400"></p>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-      <div className="p-4 space-y-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+        className="p-4 space-y-4"
+      >
         <Separator className="bg-gray-700" />
         <div>
-          {status.data.activities.length > 0 ? (
-            status.data.activities.map((activity: Activity, index: number) => (
-              <div key={index} className="mb-2 bg-gray-700 rounded-lg p-3">
-                <div className="flex items-center">
-                  {getActivityIcon(activity.type)}
-                  <p className="font-medium">{activity.name}</p>
-                </div>
-                {activity.type === 2 && status.data.spotify && (
-                  <div className="mt-2 flex items-center">
-                    <Image
-                      src={status.data.spotify.album_art_url}
-                      alt="Album Art"
-                      width={64}
-                      height={64}
-                      className="rounded-md cursor-pointer mr-4"
-                      onClick={() => {
-                        if (status.data.spotify && status.data.spotify.track_id) {
-                          window.open(`https://open.spotify.com/track/${status.data.spotify.track_id}`, '_blank');
-                        }
-                      }}
-                    />
-                    <div className="flex-grow">
-                      <p className="text-sm text-gray-400">
-                        Listening to {status.data.spotify.song} by {status.data.spotify.artist}
-                      </p>
-                      <div className="mt-2 bg-gray-600 h-2 rounded-full">
-                        <div 
-                          className="bg-green-500 h-2 rounded-full" 
-                          style={{width: `${calculateProgress(status.data.spotify.timestamps.start, status.data.spotify.timestamps.end)}%`}}
-                        ></div>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-400 mt-1">
-                        <span>{Math.floor((Date.now() - status.data.spotify.timestamps.start) / 1000 / 60)}:{Math.floor((Date.now() - status.data.spotify.timestamps.start) / 1000 % 60).toString().padStart(2, '0')}</span>
-                        <span>{Math.floor((status.data.spotify.timestamps.end - status.data.spotify.timestamps.start) / 1000 / 60)}:{Math.floor((status.data.spotify.timestamps.end - status.data.spotify.timestamps.start) / 1000 % 60).toString().padStart(2, '0')}</span>
+          <AnimatePresence>
+            {status.data.activities.length > 0 ? (
+              status.data.activities.map((activity: Activity, index: number) => (
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
+                  className="mb-2 bg-gray-700 rounded-lg p-3"
+                >
+                  <div className="flex items-center">
+                    {getActivityIcon(activity.type)}
+                    <p className="font-medium">{activity.name}</p>
+                  </div>
+                  {activity.type === 2 && status.data.spotify && (
+                    <div className="mt-2 flex items-center">
+                      <Image
+                        src={status.data.spotify.album_art_url}
+                        alt="Album Art"
+                        width={64}
+                        height={64}
+                        className="rounded-md cursor-pointer mr-4"
+                        onClick={() => {
+                          if (status.data.spotify && status.data.spotify.track_id) {
+                            window.open(`https://open.spotify.com/track/${status.data.spotify.track_id}`, '_blank');
+                          }
+                        }}
+                      />
+                      <div className="flex-grow">
+                        <p className="text-sm text-gray-400">
+                          Listening to {status.data.spotify.song} by {status.data.spotify.artist}
+                        </p>
+                        <div className="mt-2 bg-gray-600 h-2 rounded-full">
+                          <motion.div 
+                            className="bg-green-500 h-2 rounded-full" 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${calculateProgress(status.data.spotify.timestamps.start, status.data.spotify.timestamps.end)}%` }}
+                            transition={{ duration: 0.5 }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-400 mt-1">
+                          <span>{Math.floor((Date.now() - status.data.spotify.timestamps.start) / 1000 / 60)}:{Math.floor((Date.now() - status.data.spotify.timestamps.start) / 1000 % 60).toString().padStart(2, '0')}</span>
+                          <span>{Math.floor((status.data.spotify.timestamps.end - status.data.spotify.timestamps.start) / 1000 / 60)}:{Math.floor((status.data.spotify.timestamps.end - status.data.spotify.timestamps.start) / 1000 % 60).toString().padStart(2, '0')}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-                {activity.type === 4 && (
-                  <p className="text-sm text-gray-400 mt-1">{activity.state}</p>
-                )}
-                {activity.type !== 2 && activity.type !== 4 && activity.details && (
-                  <p className="text-sm text-gray-400 mt-1">{activity.details}</p>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-400">Not doing anything currently</p>
-          )}
+                  )}
+                  {activity.type === 4 && (
+                    <p className="text-sm text-gray-400 mt-1">{activity.state}</p>
+                  )}
+                  {activity.type !== 2 && activity.type !== 4 && activity.details && (
+                    <p className="text-sm text-gray-400 mt-1">{activity.details}</p>
+                  )}
+                </motion.div>
+              ))
+            ) : (
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.3 }}
+                className="text-center text-gray-400"
+              >
+                Not doing anything currently
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
 export default function Home() {
   return (
     <div className="flex h-screen bg-gray-900 text-white">
-            <Sidebar/>
+      <Sidebar/>
       <div className="flex-1 flex items-center justify-center overflow-y-auto p-6">
         <LanyardStatus userId="1137093225576935485" />
       </div>
