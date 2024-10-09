@@ -4,6 +4,11 @@
 nextjs-portal {
   display: none;
 }
+
+.icon-small {
+  font-size: 0.75rem; /* Adjust the size as needed */
+}
+
 @layer base {
   :root {
     --border: 240 3.7% 15.9%;
